@@ -1,0 +1,43 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  validate-skill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/validate_skill.py
+      - run: python -m unittest discover -s tests -v
+      - run: |
+          for name in frontend threejs backend; do
+            python scripts/validate_project.py "templates/$name"
+            python scripts/audit_code.py "templates/$name" --fail-on-warning
+          done
+  starter-builds:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        starter: [frontend, threejs, backend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-audit --no-fund
+        working-directory: templates/${{ matrix.starter }}
+      - run: npm run typecheck
+        working-directory: templates/${{ matrix.starter }}
+      - run: npm run build
+        working-directory: templates/${{ matrix.starter }}
+      - run: npm test --if-present
+        working-directory: templates/${{ matrix.starter }}
+      - name: Asset budget check
+        if: matrix.starter != 'backend'
+        run: python scripts/check_performance.py templates/${{ matrix.starter }}/dist --max-total-kib 4096 --max-file-kib 1024
