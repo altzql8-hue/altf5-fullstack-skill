@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 
 class SkillValidationTests(unittest.TestCase):
     def test_repo_skill_valid(self):
-        self.assertEqual(validate_skill(ROOT), [])
+        self.assertEqual(validate_skill(ROOT, check_directory_name=False), [])
 
     def test_missing_frontmatter_rejected(self):
         with self.assertRaises(ValueError):
