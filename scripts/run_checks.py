@@ -25,7 +25,7 @@ SECRET = re.compile(r"(?i)\b(token|password|secret|api[_-]?key)\s*[:=]\s*([\"']?
 def commands_for(root: Path, suite: str) -> list[tuple[str, list[str]]]:
     py = sys.executable
     core = [
-        ("metadata-and-links", [py, "scripts/validate_skill.py"]),
+        ("metadata-and-links", [py, "scripts/validate_skill.py", "--repository-checkout"]),
         ("github-workflows", [py, "scripts/verify_workflows.py"]),
         ("python-unit-tests", [py, "-m", "unittest", "discover", "-s", "tests", "-v"]),
     ]

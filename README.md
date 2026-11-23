@@ -24,7 +24,7 @@ The skill is **not a model fine-tune or a magic hallucination remover**. It work
 
 ## Quick start
 
-Install as a skills folder named `altf5-fullstack-engineering` and tell a compatible coding agent to consult `SKILL.md`. See [installation](docs/INSTALL.md) for different agent setups.
+Install as a skills folder named `altf5-fullstack-engineering` (the GitHub repository slug is different; CI uses `--repository-checkout` only to skip the checkout-folder-name check) and tell a compatible coding agent to consult `SKILL.md`. See [installation](docs/INSTALL.md) for different agent setups.
 
 ```bash
 # No third-party Python dependencies needed:

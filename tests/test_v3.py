@@ -14,6 +14,7 @@ from scripts.context_plan import plan
 from scripts.grade_trace import grade
 from scripts.run_checks import clean_output, commands_for, run, tree_digest
 from scripts.verify_workflows import verify
+from scripts.validate_skill import validate
 
 ROOT = Path(__file__).resolve().parent.parent
 
@@ -153,6 +154,26 @@ class AgentEvaluationTests(unittest.TestCase):
         result = grade(trace, require_runner=True, runner_report=local)
         self.assertTrue(result["pass"])
         self.assertTrue(any("not authenticated" in x for x in result["warnings"]))
+
+
+class SkillCheckoutTests(unittest.TestCase):
+    def test_repo_checkout_alias_is_allowed_but_installed_skill_is_strict(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / "repository-slug-not-skill-name"
+            root.mkdir()
+            (root / "SKILL.md").write_text(
+                "---\nname: altf5-fullstack-engineering\ndescription: This is a valid skill\nlicense: MIT\n---\n"
+            )
+            (root / "LICENSE").write_text("MIT")
+            self.assertTrue(validate(root))
+            self.assertEqual(validate(root, check_directory_name=False), [])
+
+    def test_alias_does_not_bypass_invalid_metadata(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root / "SKILL.md").write_text("---\nname: BAD NAME\ndescription: X\n---\n")
+            (root / "LICENSE").write_text("MIT")
+            self.assertTrue(validate(root, check_directory_name=False))
 
 
 class WorkflowHardeningTests(unittest.TestCase):

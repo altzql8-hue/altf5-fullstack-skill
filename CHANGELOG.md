@@ -8,7 +8,8 @@
 - Paired before/after task evaluator exposing quality regressions even with token savings.
 - Multi-line workflow interpolation, broad token rights and persistent credentials checks.
 - Strict trace mode requiring local runner coherence (unsigned, not authenticated).
-- 19 adversarial regression tests and scoped research documentation.
+- 21 adversarial regression tests and scoped research documentation.
+- GitHub checkout slug compatibility fix: CI uses an explicit mode, installed-skill folder validation stays strict.
 
 
 ## 2.0.0 — 2026-11-23

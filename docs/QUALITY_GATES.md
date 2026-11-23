@@ -33,6 +33,8 @@ Run fixed, held-out tasks before and after adoption with the same model, configu
 
 The offline run report proves only what the local runner observed; it is unsigned JSON. Prefer GitHub Actions run IDs and official logs/artifacts for stronger independent provenance.
 
+**Repository checkout vs installed skill:** the GitHub slug `altf5-fullstack-skill` is intentionally different from the skill name. `validate_skill.py --repository-checkout` skips *only* their directory-name equality check in CI. For installed skills, run `validate_skill.py` without this option to enforce the folder name.
+
 ## CI limitations
 
 The sample templates do not yet carry npm lockfiles, so CI uses `npm install`; those installs are not fully reproducible. Production projects should **commit a package lock and use `npm ci`**. Dependency audit results depend on npm registry availability and advisory freshness. CodeQL and the local regex-based checks do not cover every possible flaw; security-critical changes need manual review.

@@ -30,7 +30,7 @@ def parse_frontmatter(content: str) -> dict[str, str]:
     return result
 
 
-def validate(root: Path) -> list[str]:
+def validate(root: Path, *, check_directory_name: bool = True) -> list[str]:
     errors: list[str] = []
     skill = root / "SKILL.md"
     if not skill.is_file():
@@ -43,7 +43,7 @@ def validate(root: Path) -> list[str]:
     desc = fields.get("description", "")
     if not (1 <= len(name) <= 64) or not NAME_RE.fullmatch(name):
         errors.append("invalid name: expected 1–64 lowercase kebab-case characters")
-    if name != root.name:
+    if check_directory_name and name != root.name:
         errors.append(f"name '{name}' must match parent directory '{root.name}'")
     if not (1 <= len(desc) <= 1024):
         errors.append("description must be between 1 and 1024 characters")
@@ -69,8 +69,10 @@ def validate(root: Path) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", type=Path, default=Path(__file__).resolve().parent.parent)
+    parser.add_argument("--repository-checkout", action="store_true",
+                        help="Skip only the folder-name comparison for a GitHub checkout with a different repo slug")
     args = parser.parse_args(argv)
-    errors = validate(args.root.resolve())
+    errors = validate(args.root.resolve(), check_directory_name=not args.repository_checkout)
     for error in errors:
         print(f"ERROR {error}", file=sys.stderr)
     if errors:
