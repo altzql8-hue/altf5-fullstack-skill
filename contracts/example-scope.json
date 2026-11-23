@@ -1,0 +1,4 @@
+{
+  "allowed": ["src/**", "tests/**"],
+  "protected": ["src/auth/keys.ts", "tests/fixtures/production-data.json"]
+}

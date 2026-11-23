@@ -1,67 +1,83 @@
 ---
 name: altf5-fullstack-engineering
-description: Build, repair, review, and optimize production-quality frontend, Three.js/WebGL, and backend projects. Use when an agent needs a structured implementation workflow, accessible responsive UI, performant 3D graphics, secure APIs, practical starter templates, measurable quality gates, or deployment readiness checks.
+description: Evidence-driven, usage-efficient engineering for frontend, Three.js and backend work. Use to implement, debug, audit and improve full-stack apps with grounded API/package claims, bounded subagents, scope controls, risk-based testing, defensive security review, performance budgets, and honest execution evidence.
 license: MIT
-compatibility: Requires Python 3.10+ for included validators; Node.js 22+ and npm for optional starter templates. Instructions work with any coding agent supporting Agent Skills.
+compatibility: Python 3.10+ for stdlib tools; optional Node.js 22+ for example apps. Works as portable Agent Skills instructions with tools available in the host coding agent.
 metadata:
   author: AltF5
-  version: "1.0.0"
+  version: "2.0.0"
   category: development
 ---
 
-# AltF5 Fullstack Engineering
+# AltF5 Fullstack Engineering — evidence-first V2
 
-Use this skill to deliver **working software**, not just mockups or impressive-looking code. Follow this workflow and read the relevant reference files on demand.
+**Goal:** Deliver a *complete, testable, secure-by-design implementation with minimal necessary tokens, calls and changes*. This skill provides instructions and offline checks; it does not secretly modify models, launch subagents, enforce API billing limits, or guarantee vulnerability-free code.
 
-## 1. Discover and choose a path
+## Non-negotiable operating rules
 
-1. Examine the existing codebase, scripts, dependencies, constraints, runtime, and user expectations. Do not overwrite working configuration.
-2. Identify the requested work: UI, 3D graphics, API, database, deployment, review, or multiple.
-3. Select only the relevant references:
-   - Frontend & accessibility: [references/frontend.md](references/frontend.md) and [references/design-system.md](references/design-system.md)
-   - Three.js / shaders: [references/threejs.md](references/threejs.md)
-   - APIs and validation: [references/backend.md](references/backend.md)
-   - Persistence and migrations: [references/database.md](references/database.md)
-   - Threat modeling & secrets: [references/security.md](references/security.md)
-   - Bundles, frame time, Web Vitals: [references/performance.md](references/performance.md)
-   - Release & operations: [references/deployment.md](references/deployment.md)
-4. For new projects, prefer a small proven stack. Use `python scripts/scaffold.py --list` to see templates.
+1. **Trust evidence, not plausibility.** Never invent an existing API, npm package, option, path, benchmark result, build outcome, quote, or source. Verify new library symbols against installed code/types/versioned docs, then compile or smoke-test. See [grounding](references/grounding.md).
+2. **Single agent by default.** Run `python scripts/route_task.py "<task>"` for suggested scope and budgets. Delegate only independent, scoped reviews where benefits justify cost; max two peers by default, no nested delegation. See [orchestration](references/agent-orchestration.md) and [handoff](agents/HANDOFF.md).
+3. **Preserve scope.** Before edits define behavior, allowed paths, success criteria, and tests. Do not rewrite unrelated files, rewrite tests to hide failures, or suppress exceptions to claim success. Use [scope checks](scripts/check_diff_scope.py).
+4. **Executable validation.** 'Pass' means a real, observed check passed. Run smallest useful failing test first, then types, build, relevant regressions and risk-based security/performance checks. Never claim CI is green before reading its actual result. See [verification](references/verification.md).
+5. **Security is a separate dimension.** Audit trust boundaries, authorization, injection, supply chain, secrets and default configurations; use [security guidance](references/security-hardening.md). Clean heuristic results are not proof of security.
+6. **Stop when finished.** No endless searching, spawning, polishing or unrelated infrastructure repair. Use context summaries, direct code pointers and targeted checks. See [efficiency](references/context-efficiency.md).
+7. **No dishonest output.** State exactly what was run, what was not run, limitations and residual risk. If blocked, report a concrete partial result rather than inventing success.
 
-## 2. Plan before implementation
+## Operational workflow
 
-Write a concise change plan stating affected files, API contracts, user flows, risks, tests, and success criteria. For short tasks, keep this to a few sentences. For ambiguous tasks, make explicit reversible assumptions and continue.
+### A. Triage (small effort)
 
-## 3. Implement with production standards
+- Read `AGENTS.md` and existing README, manifests, relevant code, CI, and recent changes. Confirm user goal and non-goals; preserve current architecture unless change is required.
+- Route area(s): [frontend](references/frontend.md), [Three.js](references/threejs.md), [backend](references/backend.md), [database](references/database.md), [deployment](references/deployment.md), [design](references/design-system.md), [performance](references/performance.md), and/or [security](references/security.md).
+- For unfamiliar/model-dependent software behavior, consult [grounding](references/grounding.md) *before* modifying files. For model-profile nuances and dated source limitations, see [model profiles](docs/research/MODEL_PROFILES.md).
+- Create a minimal contract: desired observable outcome, allowed changed paths, main risks, smallest executable test, rollback and necessary approvals.
 
-- Build vertical slices that run end-to-end; do not leave fake buttons, stub handlers, or disconnected frontend/backend flows.
-- Use strict typing and clear naming; handle loading, empty, error, and success states.
-- Validate untrusted input at the boundary; restrict CORS appropriately; never hardcode credentials.
-- Preserve keyboard access, visible focus, semantic labels, reduced-motion support, and mobile layouts.
-- For Three.js: lifecycle cleanup, renderer resize, pixel ratio caps, asset budgets, controls, and context-failure fallback are mandatory.
-- Avoid premature complexity; isolate I/O, put configuration in environment variables, and document assumptions.
+### B. Choose workflow proportional to risk
 
-## 4. Verify, measure, and fix
+| Risk | Typical change | Workflow | Reviewer |
+| --- | --- | --- | --- |
+| Low | Copy/UI adjustments, isolated refactor | Single agent, targeted check | No extra agent |
+| Medium | Cross-component change | One lead, contract tests, independent review only if useful | At most one or two read-only subagents |
+| High | Auth, tenancy, data migrations, credentials, payments | Threat model, negative cases, broader tests, human approval | Independent security reviewer when possible |
 
-Run the tests the project already has. For new templates:
+Subagents must not own shared-file merges; only the lead integrates. Router estimates are *policy suggestions*, not measured tokens or usage caps.
+
+### C. Implement a complete vertical slice
+
+- Follow project conventions; implement all requested wired interactions, not fake controls or stubs.
+- Frontend: responsive, accessible, keyboard-friendly and explicit loading/empty/error/success states.
+- Three.js: lifecycle disposal, pixel ratio limits, resize/context handling, GPU and asset budgets, mobile fallbacks.
+- Backend: structured input validation, per-object authorization where required, bounded payloads, clear errors and safe deployment configuration.
+- Data: migrations with rollback plan, tested permission boundaries and backups.
+- Update tests and docs only where behavior/contract actually changed.
+
+### D. Independently verify
+
+Run relevant tooling and capture exact outcomes:
 
 ```bash
 python scripts/validate_skill.py
-python scripts/validate_project.py templates/frontend
-python scripts/validate_project.py templates/threejs
-python scripts/validate_project.py templates/backend
+python scripts/verify_workflows.py
 python -m unittest discover -s tests -v
+python scripts/validate_project.py templates/backend
+python scripts/audit_code.py templates/backend --fail-on-warning
+python scripts/security_gate.py templates/backend --fail-on medium
+python scripts/check_claims.py evals/claims-example.json --root .
+python scripts/grade_trace.py evals/good-trace.json
 ```
 
-Where dependencies are available, run each template's `npm install`, `npm run typecheck`, `npm run build`, and `npm test` where defined. Inspect warnings and regressions, not merely exit status. Audit security-sensitive changes with `python scripts/audit_code.py <path>`. For built frontend assets use `python scripts/check_performance.py <path>/dist`.
+For actual projects, run their native typecheck, tests, build, dependency audit and relevant smoke or performance measurements; on CI inspect CodeQL. Use `python scripts/check_performance.py <dist>` only for uncompressed bundle size, not FPS. When npm dependencies are available, starter checks are typecheck/build/tests as declared in each manifest.
 
-## 5. Report concrete evidence
+### E. Deliver an evidence report
 
-Provide a change summary, exact commands run and their outcomes, unresolved concerns, and deployment instructions. Never claim tests/builds pass without executing them. Do not expose secrets or private files. If requested delivery is impossible, ship the functioning local artifact and disclose the blocker.
+Report: changed files, acceptance criteria tested, exact commands + outcomes, security concerns reviewed, unverified assumptions, anything not executed and run/deploy instructions. Do not assert that an evaluation harness itself improved model accuracy without an independent before/after benchmark.
 
-## References and starters
+## Read-on-demand directory
 
-- [Installation](docs/INSTALL.md)
-- [Quality gates](docs/QUALITY_GATES.md)
-- [Design recipes](docs/RECIPES.md)
+- [Research: coding agent failure taxonomy](docs/research/FAILURE_TAXONOMY.md)
+- [Research: evaluated model-specific patterns](docs/research/MODEL_PROFILES.md)
+- [Research: cited sources and limits](docs/research/SOURCES.md)
+- [Agent handoff format](agents/HANDOFF.md)
+- [Quality gates and threat model](docs/QUALITY_GATES.md)
+- [Install and use the skill](docs/INSTALL.md)
 - [Starter templates](templates/)
-- [Contributing](CONTRIBUTING.md)

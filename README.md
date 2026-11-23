@@ -1,92 +1,83 @@
-# AltF5 Fullstack Engineering Skill
+# AltF5 Fullstack Engineering Skill V2
 
-> An open-source Agent Skill for building reliable frontend, Three.js, and backend applications — with **working starter templates**, reference playbooks, reproducible checks, and CI.
+[![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE) [![Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-black)](SKILL.md)
 
-![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-![Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-24292f.svg)
+**An evidence-driven engineering playbook + executable gates for coding agents building frontend, Three.js, and backend software.** Designed to reduce fabricated API claims, useless tool calls, unwanted edits, incomplete fixes, untested code and security mistakes without burning tokens on unnecessary subagents.
 
-## Why this exists
+The skill is **not a model fine-tune or a magic hallucination remover**. It works by changing how coding agents collect evidence, implement, check and report changes. Improvement depends on the host agent actually following these instructions and running checks.
 
-An AI agent should deliver working software rather than gorgeous but broken demos. This repository defines concrete build standards and ships reusable templates and validators. It **does not** retrain or replace a model and cannot guarantee code quality without testing.
+## V2's main upgrades
 
-## Capabilities
-
-| Area | What the skill enforces |
+| Capability | Implementation |
 | --- | --- |
-| Frontend | Accessible components, responsive layouts, explicit UI states, strict TypeScript |
-| Three.js | WebGL error fallback, resize lifecycle, frame-budget awareness, correct disposal |
-| Backend | Validated requests, environment-based config, basic HTTP hardening, tests |
-| Data | Migration safety, access controls, query efficiency, backup/recovery plans |
-| Security | Secrets handling, bounded inputs, dependency and auth reviews |
-| Performance | Web Vitals, bundle size limits, mobile GPU constraints, profiling |
-| Operations | CI checks, deployment configuration, observability and rollback |
+| Symbol and dependency grounding | [Grounding playbook](references/grounding.md), [claims verifier](scripts/check_claims.py) |
+| Efficient delegation | [Routing CLI](scripts/route_task.py), [subagent handoff](agents/HANDOFF.md) |
+| Budgeting / trajectory visibility | [Trace grader](scripts/grade_trace.py), [efficiency guide](references/context-efficiency.md) |
+| Scope control | [Diff-scope guard](scripts/check_diff_scope.py) + JSON contract |
+| Defensive security | [Offline gate](scripts/security_gate.py), CodeQL, Dependabot, npm audit, ASVS checklist |
+| Workflow supply-chain safety | SHA-pinned GitHub Actions, least privilege, [workflow checker](scripts/verify_workflows.py) |
+| Test completeness | Negative examples, unit tests, CI matrix, [verification ladder](references/verification.md) |
+| Research-based policies | [Model profiles](docs/research/MODEL_PROFILES.md), [failure taxonomy](docs/research/FAILURE_TAXONOMY.md), [sources](docs/research/SOURCES.md) |
 
 ## Quick start
 
-Clone/copy this repository into a supported agent's skills directory as `altf5-fullstack-engineering`, or point the agent at [`SKILL.md`](SKILL.md). See [installation instructions](docs/INSTALL.md).
+Install as a skills folder named `altf5-fullstack-engineering` and tell a compatible coding agent to consult `SKILL.md`. See [installation](docs/INSTALL.md) for different agent setups.
 
 ```bash
-# Validate the Agent Skill package (requires Python 3.10+)
+# No third-party Python dependencies needed:
+python scripts/route_task.py "Secure a frontend and backend authentication flow"
 python scripts/validate_skill.py
+python scripts/verify_workflows.py
 python -m unittest discover -s tests -v
+python scripts/check_claims.py evals/claims-example.json --root .
+python scripts/grade_trace.py evals/good-trace.json
+python scripts/security_gate.py templates/backend --fail-on medium
 
-# List runnable starters
+# Scaffold example application:
 python scripts/scaffold.py --list
-
-# Create a project without modifying the template
-python scripts/scaffold.py frontend ./my-frontend
-cd my-frontend
-npm install
-npm run typecheck
-npm run build
-npm run dev
+python scripts/scaffold.py threejs ./my-3d-app
+cd my-3d-app && npm install && npm run typecheck && npm run build
 ```
 
-Other starters: `threejs` (interactive rotating 3D scene) and `backend` (Express 5 HTTP API). The scaffold tool will refuse to overwrite existing paths.
-
-## Agent instructions
-
-Ask an agent: **"Use the AltF5 Fullstack Engineering skill to make a responsive dashboard with a performant Three.js preview and a secure API. Implement and verify everything."**
-
-For detailed process rules use [SKILL.md](SKILL.md). References are loaded when their topics become relevant, not all at once.
-
-## Tools
+For scopes:
 
 ```bash
-python scripts/validate_skill.py
-python scripts/validate_project.py templates/threejs
-python scripts/audit_code.py templates/backend
-python scripts/check_performance.py ./my-frontend/dist --max-total-kib 4096 --max-file-kib 1024
+python scripts/check_diff_scope.py --contract contracts/example-scope.json --files src/app.ts tests/app.test.ts
+# Full repo diff from current Git HEAD (your project):
+python scripts/check_diff_scope.py --contract contracts/example-scope.json --base HEAD
 ```
 
-The security scanner is **heuristic**, not a replacement for an actual security review. Size checks are not frame-time benchmarks. See [quality gates](docs/QUALITY_GATES.md).
+## How agents should work
 
-## Repository layout
+1. **Read only relevant files**, identify actual manifest versions and symbols.
+2. **Create a contract** and select one agent by default.
+3. **Implement the smallest complete change**, with tests for success *and* failure cases.
+4. **Run hard checks** and inspect the diff; use independent review only on meaningful risks.
+5. **Report observed evidence**, not an imagined test or security result.
 
-```text
-altf5-fullstack-engineering/
-├── SKILL.md                      # Agent Skill entry point
-├── references/                   # Focused agent playbooks
-├── templates/
-│   ├── frontend/                 # Vite + React + TypeScript
-│   ├── threejs/                  # Vite + Three.js + TypeScript
-│   └── backend/                  # Express + Zod + TypeScript
-├── scripts/                      # Scaffold, metadata, audit, size checks
-├── tests/                        # Python unit tests for the tools
-├── docs/                         # Setup, recipes, design and validation
-├── .github/workflows/ci.yml      # Python + Node validation in CI
-└── LICENSE                       # MIT
-```
+See [SKILL.md](SKILL.md) and [AGENTS.md](AGENTS.md) for full instructions.
 
-## Principles
+## Runnable templates
 
-1. **Function before polish:** every interaction must work.
-2. **Proof over claims:** run the checks and report their output.
-3. **Secure defaults:** validate input; never trust browser input or committed secrets.
-4. **Mobile-first 3D:** budget memory and pixels carefully.
-5. **Progressive disclosure:** read only the needed playbook.
-6. **Portable:** plain Markdown and Python scripts; no paid services necessary.
+- [Frontend](templates/frontend/README.md): Vite + React + TypeScript responsive starter.
+- [Three.js](templates/threejs/README.md): Vite + Three.js with lifecycle cleanup and controls.
+- [Backend](templates/backend/README.md): Express 5 + Zod validation, tests and basic HTTP hardening.
 
-## License and contributions
+Templates are teaching starters, **not complete production apps**. No auth/DB infrastructure is bundled. For deployed apps, add project-specific authorization tests, secrets management, rate limits, monitoring, lockfiles and deployment configuration.
 
-MIT © AltF5 contributors. Contributions welcome; read [CONTRIBUTING.md](CONTRIBUTING.md). For private vulnerability reports, see [SECURITY.md](SECURITY.md).
+## GitHub CI and security
+
+- [Quality gates](.github/workflows/ci.yml): stdlib unit tests, positive/negative trace fixtures, heuristic checks, typecheck/build/backend tests, npm dependency audit, asset budgets.
+- [CodeQL analysis](.github/workflows/codeql.yml): Python and JS/TS security-extended analysis on PRs, main and weekly schedule.
+- [Dependabot](.github/dependabot.yml): checks starter dependencies and GitHub Actions weekly.
+- Action references are pinned to immutable full commit SHAs. `GITHUB_TOKEN` permissions are limited by job/workflow. CI uses `npm install` because the example starters intentionally omit lockfiles; production apps should commit lockfiles and use `npm ci`.
+
+A clean CI run is useful evidence, not proof against every bug or vulnerability. See [security disclosure](SECURITY.md).
+
+## Research: what should actually be measured?
+
+An independent 2026 JetBrains Junie comparison identified different weak spots in specific GPT, Claude, Gemini and Qwen versions. These **do not** establish hard-coded traits of all later versions. See [research findings](docs/research/MODEL_PROFILES.md) and [citation notebook](docs/research/SOURCES.md). Avoid ungrounded promises like "100x better" unless you collect before/after controlled benchmarks.
+
+## Contributing and license
+
+MIT-licensed by AltF5 contributors. Read [CONTRIBUTING.md](CONTRIBUTING.md), and send private vulnerability reports following [SECURITY.md](SECURITY.md).

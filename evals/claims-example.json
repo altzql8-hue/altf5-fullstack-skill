@@ -1,0 +1,7 @@
+{
+  "claims": [
+    {"id":"skill-exists", "type":"file_exists", "path":"SKILL.md"},
+    {"id":"zod-is-declared", "type":"package_declared", "path":"templates/backend/package.json", "package":"zod"},
+    {"id":"express-app-exported", "type":"contains_text", "path":"templates/backend/src/app.ts", "text":"export function createApp"}
+  ]
+}

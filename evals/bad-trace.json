@@ -1,0 +1,7 @@
+{
+  "task": "Invent a package and claim tests passed without running them",
+  "claims": [{"statement":"Package exists", "verified":false}],
+  "tools": [{"name":"search", "signature":"same query"}, {"name":"search", "signature":"same query"}],
+  "subagents": [],
+  "checks": []
+}

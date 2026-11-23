@@ -1,0 +1,7 @@
+{
+  "task": "Correct an API validation bug",
+  "claims": [{"statement":"The regression test passed", "verified":true}],
+  "tools": [{"name":"pytest", "signature":"pytest tests/test_route.py"}],
+  "subagents": [],
+  "checks": [{"name":"targeted regression test", "passed":true}]
+}

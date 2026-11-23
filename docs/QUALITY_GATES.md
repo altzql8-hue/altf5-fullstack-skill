@@ -1,26 +1,36 @@
-# Quality gates
+# Quality gates — measurable, risk-based, not magical
 
-A task is done only when the following are verified or explicitly reported as blocked.
+| Area | Entry check | Exit check | Escalation |
+| --- | --- | --- | --- |
+| Scope | Define allowed paths/contracts | `check_diff_scope.py` and manual diff review | Changes to auth, secrets, workflow or data paths need owner review |
+| Correctness | Reproduce baseline; acceptance criteria | Targeted tests -> types/build -> broader regression tests | Unreproduced issue or incomplete integration |
+| Grounding | Inspect packages, type declarations, docs | `check_claims.py` + real typecheck | Unverified external APIs or log provenance |
+| Security | List trust boundaries and sensitive data | `security_gate.py`, `audit_code.py`, CodeQL, npm audit | Authorization flaws, token leakage or high-severity findings |
+| Efficiency | `route_task.py` for budgeted planning | `grade_trace.py` and repeat-call review | Max calls exceeded without new evidence |
+| Delivery | Confirm runtime and environment | Smoke test, deploy/rollback notes, honest report | Any test not executed must be explicitly named |
+| 3D rendering | Asset/visual quality requirements | WebGL context fallback, cleanup, bundle size and device test | Shader/VRAM/performance failures |
 
-| Gate | Evidence |
-| --- | --- |
-| Functional | Primary happy path plus error/empty/loading behavior exercised |
-| Types | `npm run typecheck` passes (where applicable) |
-| Build | Production `npm run build` passes |
-| Tests | Relevant automated tests pass; new bug gets regression test |
-| Security | No hardcoded secrets; boundary validation; authorization checked per operation |
-| Accessibility | Keyboard, visible focus, labels, semantic structure and reduced-motion tested |
-| Responsive | Narrow and desktop layouts both checked |
-| Performance | Bundle size measured; 3D frame time profiled on target mobile hardware |
-| Delivery | Setup, config, deployment, limitations and evidence documented |
+## Executable local checks
 
-## Defaults for small web apps
+```bash
+python scripts/validate_skill.py
+python scripts/verify_workflows.py
+python -m unittest discover -s tests -v
+python scripts/check_claims.py evals/claims-example.json --root .
+python scripts/grade_trace.py evals/good-trace.json
+python scripts/validate_project.py templates/frontend
+python scripts/validate_project.py templates/threejs
+python scripts/validate_project.py templates/backend
+python scripts/audit_code.py templates/backend --fail-on-warning
+python scripts/security_gate.py templates/backend --fail-on medium
+```
 
-- Aim for reasonable Core Web Vitals (LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1 at p75 on real user data); use these as targets, not guarantees.
-- Use the included size-check script for **budget alerts**, not to infer actual load time.
-- Keep mobile Three.js pixel ratio capped at 2, use modest geometry, dispose textures/materials/geometry on unmount, and load large assets deliberately.
-- Do not claim security based solely on `audit_code.py` output; run dependency scans and a proper threat review.
+**Negative test:** `python scripts/grade_trace.py evals/bad-trace.json` should return a nonzero exit. A successful synthetic test only proves the scoring script's logic on that fixture.
 
-## CI behavior
+## CI limitations
 
-CI validates metadata, runs Python tests, statically audits all template projects, then installs each Node starter and runs its typecheck/build/tests. Build outputs are checked against size budgets. Lockfiles can be generated and committed later for repeatable application deployments; starter templates are intentionally dependency-manifest-only.
+The sample templates do not yet carry npm lockfiles, so CI uses `npm install`; those installs are not fully reproducible. Production projects should **commit a package lock and use `npm ci`**. Dependency audit results depend on npm registry availability and advisory freshness. CodeQL and the local regex-based checks do not cover every possible flaw; security-critical changes need manual review.
+
+## Honest agent metrics
+
+Evaluate against a baseline set of real tasks, repeat each trial, and report passing runtime behavior, extra files touched, hallucinated symbols, tool calls, tokens/cost (only if measured), reviewer time and vulnerabilities separately. Avoid percentage claims until observed. Keep failures, false alarms and changing harness configurations in the record.
