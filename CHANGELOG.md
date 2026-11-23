@@ -1,5 +1,16 @@
 # Changelog
 
+## 3.0.0 — 2026-11-23
+
+- Fixed-command check runner with status, timeouts, repository hashes and CI artifact.
+- Low-trust context guidance and heuristic instruction-in-data triage.
+- Approximate path-based file planner and bounded, read-only specialist policy.
+- Paired before/after task evaluator exposing quality regressions even with token savings.
+- Multi-line workflow interpolation, broad token rights and persistent credentials checks.
+- Strict trace mode requiring local runner coherence (unsigned, not authenticated).
+- 19 adversarial regression tests and scoped research documentation.
+
+
 ## 2.0.0 — 2026-11-23
 
 - Evidence-first skill flow: grounded API/dependency claims, contract-led implementation, explicit verification and stopping criteria.

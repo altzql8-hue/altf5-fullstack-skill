@@ -1,4 +1,4 @@
-# AltF5 Fullstack Engineering Skill V2
+# AltF5 Fullstack Engineering Skill V3
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue)](LICENSE) [![Agent Skills](https://img.shields.io/badge/format-Agent%20Skills-black)](SKILL.md)
 
@@ -6,7 +6,7 @@
 
 The skill is **not a model fine-tune or a magic hallucination remover**. It works by changing how coding agents collect evidence, implement, check and report changes. Improvement depends on the host agent actually following these instructions and running checks.
 
-## V2's main upgrades
+## V3: verifiable workflows and efficient agents
 
 | Capability | Implementation |
 | --- | --- |
@@ -16,7 +16,10 @@ The skill is **not a model fine-tune or a magic hallucination remover**. It work
 | Scope control | [Diff-scope guard](scripts/check_diff_scope.py) + JSON contract |
 | Defensive security | [Offline gate](scripts/security_gate.py), CodeQL, Dependabot, npm audit, ASVS checklist |
 | Workflow supply-chain safety | SHA-pinned GitHub Actions, least privilege, [workflow checker](scripts/verify_workflows.py) |
-| Test completeness | Negative examples, unit tests, CI matrix, [verification ladder](references/verification.md) |
+| Test completeness | Negative/adversarial tests, CI matrix, [verification ladder](references/verification.md), [local runner observations](scripts/run_checks.py) |
+| Prompt-injection boundaries | [Untrusted-content guide](references/untrusted-content.md), [context triage](scripts/check_context.py) |
+| Usage efficiency | [Context path planner](scripts/context_plan.py), [read-only subagent policy](agents/DECISION_POLICY.md) |
+| Quality-first A/B evaluation | [Paired task comparator](scripts/compare_eval_runs.py), [held-out evaluation protocol](references/evaluation.md) |
 | Research-based policies | [Model profiles](docs/research/MODEL_PROFILES.md), [failure taxonomy](docs/research/FAILURE_TAXONOMY.md), [sources](docs/research/SOURCES.md) |
 
 ## Quick start
@@ -26,9 +29,9 @@ Install as a skills folder named `altf5-fullstack-engineering` and tell a compat
 ```bash
 # No third-party Python dependencies needed:
 python scripts/route_task.py "Secure a frontend and backend authentication flow"
-python scripts/validate_skill.py
-python scripts/verify_workflows.py
-python -m unittest discover -s tests -v
+python scripts/run_checks.py
+python scripts/context_plan.py "Fix React frontend responsive navigation" --budget-tokens 3000
+python scripts/compare_eval_runs.py evals/ab-baseline-example.json evals/ab-candidate-example.json
 python scripts/check_claims.py evals/claims-example.json --root .
 python scripts/grade_trace.py evals/good-trace.json
 python scripts/security_gate.py templates/backend --fail-on medium
@@ -70,13 +73,13 @@ Templates are teaching starters, **not complete production apps**. No auth/DB in
 - [Quality gates](.github/workflows/ci.yml): stdlib unit tests, positive/negative trace fixtures, heuristic checks, typecheck/build/backend tests, npm dependency audit, asset budgets.
 - [CodeQL analysis](.github/workflows/codeql.yml): Python and JS/TS security-extended analysis on PRs, main and weekly schedule.
 - [Dependabot](.github/dependabot.yml): checks starter dependencies and GitHub Actions weekly.
-- Action references are pinned to immutable full commit SHAs. `GITHUB_TOKEN` permissions are limited by job/workflow. CI uses `npm install` because the example starters intentionally omit lockfiles; production apps should commit lockfiles and use `npm ci`.
+- Action references are pinned to immutable full commit SHAs. `GITHUB_TOKEN` permissions are limited by job/workflow. CI uses `npm install` because starter lockfiles are still missing; production apps must commit lockfiles and use `npm ci`. CI preserves an evidence artifact for the fixed-command Python suite (not a signed attestation).
 
 A clean CI run is useful evidence, not proof against every bug or vulnerability. See [security disclosure](SECURITY.md).
 
 ## Research: what should actually be measured?
 
-An independent 2026 JetBrains Junie comparison identified different weak spots in specific GPT, Claude, Gemini and Qwen versions. These **do not** establish hard-coded traits of all later versions. See [research findings](docs/research/MODEL_PROFILES.md) and [citation notebook](docs/research/SOURCES.md). Avoid ungrounded promises like "100x better" unless you collect before/after controlled benchmarks.
+New [V3 research](docs/research/V3_FINDINGS.md) covers code security, unreliable benchmark tests, grounded claims and prompt injection. An independent 2026 JetBrains Junie comparison identified different weak spots in specific GPT, Claude, Gemini and Qwen versions. These **do not** establish hard-coded traits of all later versions. See [research findings](docs/research/MODEL_PROFILES.md) and [citation notebook](docs/research/SOURCES.md). Avoid ungrounded promises like "100x better" unless you collect before/after controlled benchmarks.
 
 ## Contributing and license
 

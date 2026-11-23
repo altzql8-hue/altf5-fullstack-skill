@@ -6,16 +6,16 @@
 | Correctness | Reproduce baseline; acceptance criteria | Targeted tests -> types/build -> broader regression tests | Unreproduced issue or incomplete integration |
 | Grounding | Inspect packages, type declarations, docs | `check_claims.py` + real typecheck | Unverified external APIs or log provenance |
 | Security | List trust boundaries and sensitive data | `security_gate.py`, `audit_code.py`, CodeQL, npm audit | Authorization flaws, token leakage or high-severity findings |
-| Efficiency | `route_task.py` for budgeted planning | `grade_trace.py` and repeat-call review | Max calls exceeded without new evidence |
+| Efficiency | `route_task.py`, `context_plan.py` | `grade_trace.py`, paired task/cost A/B evaluation | Max calls exceeded or quality regressed |
+| Untrusted context | Separate policy from retrieved information | `check_context.py` triage + manual trust review | Instructions found inside low-trust code/docs/logs |
+| Evidence | Require actual observed executions | Fixed `run_checks.py` outputs + trusted CI run artifact | Report forged/unverifiable or missing |
 | Delivery | Confirm runtime and environment | Smoke test, deploy/rollback notes, honest report | Any test not executed must be explicitly named |
 | 3D rendering | Asset/visual quality requirements | WebGL context fallback, cleanup, bundle size and device test | Shader/VRAM/performance failures |
 
 ## Executable local checks
 
 ```bash
-python scripts/validate_skill.py
-python scripts/verify_workflows.py
-python -m unittest discover -s tests -v
+python scripts/run_checks.py --output .artifacts/quality-report.json
 python scripts/check_claims.py evals/claims-example.json --root .
 python scripts/grade_trace.py evals/good-trace.json
 python scripts/validate_project.py templates/frontend
@@ -26,6 +26,12 @@ python scripts/security_gate.py templates/backend --fail-on medium
 ```
 
 **Negative test:** `python scripts/grade_trace.py evals/bad-trace.json` should return a nonzero exit. A successful synthetic test only proves the scoring script's logic on that fixture.
+
+## Verifying whether the skill *actually* helps
+
+Run fixed, held-out tasks before and after adoption with the same model, configuration and independent tests. `python scripts/compare_eval_runs.py baseline.json candidate.json --fail-on-regression` refuses mismatched task IDs and highlights regressions even when usage falls. Example JSON under `evals/` is **synthetic** and not performance evidence. See [evaluation protocol](../references/evaluation.md).
+
+The offline run report proves only what the local runner observed; it is unsigned JSON. Prefer GitHub Actions run IDs and official logs/artifacts for stronger independent provenance.
 
 ## CI limitations
 

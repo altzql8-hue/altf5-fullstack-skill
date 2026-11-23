@@ -1,0 +1,1 @@
+{"tasks":[{"id":"ui-contrast-demo","passed":true,"tokens":5000,"tool_calls":18},{"id":"api-validation-demo","passed":false,"tokens":6800,"tool_calls":22},{"id":"webgl-cleanup-demo","passed":true,"tokens":7000,"tool_calls":25}]}

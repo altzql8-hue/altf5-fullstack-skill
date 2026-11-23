@@ -20,20 +20,38 @@ def verify(workflows: Path) -> list[str]:
         return ["no workflows"]
     for file in files:
         text = file.read_text(encoding="utf-8")
+        lines = text.splitlines()
         if not re.search(r"(?m)^permissions:\s*$", text):
             problems.append(f"{file.name}: missing top-level GITHUB_TOKEN permissions")
-        if "pull_request_target:" in text or "workflow_run:" in text:
+        if re.search(r"(?m)^\s*(?:pull_request_target|workflow_run):", text):
             problems.append(f"{file.name}: privileged trigger requires explicit manual review")
         if not re.search(r"(?m)^\s+timeout-minutes:\s+\d+", text):
             problems.append(f"{file.name}: missing job timeout-minutes")
-        for lineno, line in enumerate(text.splitlines(), 1):
+        if re.search(r"(?m)^permissions:\s*write-all\s*$", text):
+            problems.append(f"{file.name}: broad write-all token permissions")
+        if re.search(r"(?m)^\s*persist-credentials:\s*true\s*$", text):
+            problems.append(f"{file.name}: checkout credentials persisted")
+        # Inspect entire multi-line run/env blocks, not just the literal 'run:' line.
+        # This is lexical policy checking, not a complete YAML/dataflow parser.
+        watch_indent = None
+        for lineno, line in enumerate(lines, 1):
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            indent = len(line) - len(line.lstrip(" "))
+            if watch_indent is not None and indent <= watch_indent:
+                watch_indent = None
+            key_match = re.match(r"^\s*(?:-\s*)?(run|env):(?:\s|$)", line)
+            if key_match:
+                watch_indent = indent
+            if watch_indent is not None and UNTRUSTED.search(line):
+                problems.append(f"{file.name}:{lineno}: untrusted event interpolation in shell/env context")
+        for lineno, line in enumerate(lines, 1):
             match = USE.search(line)
             if match:
                 spec = match.group(1)
                 if not PINNED.fullmatch(spec):
                     problems.append(f"{file.name}:{lineno}: action not pinned to 40-char SHA: {spec}")
-            if line.lstrip().startswith("run:") and UNTRUSTED.search(line):
-                problems.append(f"{file.name}:{lineno}: untrusted event interpolation in shell command")
     return problems
 
 

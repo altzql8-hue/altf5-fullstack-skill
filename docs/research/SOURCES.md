@@ -19,3 +19,10 @@ Use these primary engineering references and cite the study scope when repeating
 - Agent traces can be incomplete and model judges can be wrong.
 - Default scripts are stdlib heuristics, not evaluation of a live model or exploit-proof analysis.
 - Real superiority claims require controlled repeated runs of comparable tasks, with baseline, costs and manual outcome verification.
+
+11. [SecureAgentBench (September 2025)](https://arxiv.org/abs/2509.22097). Functionality is not sufficient for security; prompt-only safeguards have limitations.
+12. [Last Secure Code Benchmark (October 2026)](https://arxiv.org/abs/2610.14766). Model/harness-dependent correct-and-secure evaluation.
+13. [Task-grounded reasoning failures (October 2026)](https://arxiv.org/abs/2610.32338). Concrete agent claims can be incorrect even with a plausible workflow.
+14. [Survey of coding agent security (2026)](https://www.sciencedirect.com/science/article/pii/S0950584926002776). Tool/repository-content attacks and evidence gaps.
+15. [OWASP GitHub Actions Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/GitHub_Actions_Security_Cheat_Sheet.html). Workflow injection, credential boundaries and SHA pinning.
+16. [V3 failure-to-control mapping](V3_FINDINGS.md). What V3 changes and what it cannot verify.

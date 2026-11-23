@@ -20,15 +20,16 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: '3.12'
-      - run: python scripts/validate_skill.py
-      - run: python scripts/verify_workflows.py
-      - run: python -m unittest discover -s tests -v
-      - run: |
-          for name in frontend threejs backend; do
-            python scripts/validate_project.py "templates/$name"
-            python scripts/audit_code.py "templates/$name" --fail-on-warning
-            python scripts/security_gate.py "templates/$name" --fail-on medium
-          done
+      - name: Execute offline, allowlisted quality checks
+        run: python scripts/run_checks.py --output .artifacts/quality-report.json
+      - name: Publish local quality observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: python-quality-observations
+          path: .artifacts/quality-report.json
+          if-no-files-found: warn
+          retention-days: 7
       - run: python scripts/grade_trace.py evals/good-trace.json
       - run: |
           if python scripts/grade_trace.py evals/bad-trace.json; then
